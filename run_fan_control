@@ -1,0 +1,26 @@
+#!/bin/bash
+
+PREDIR="/sys/class/hwmon/"
+CORE_TEMP=""
+PWM_FAN=""
+
+DIR=`ls $PREDIR`
+for COUNT in $DIR
+do
+	if grep "coretemp" $PREDIR$COUNT"/name" > /dev/null
+	then
+		CORE_TEMP=$PREDIR$COUNT"/temp2_input"
+	elif grep "asus" $PREDIR$COUNT"/name" > /dev/null
+	then
+		PWM_FAN=$PREDIR$COUNT"/pwm1"
+	fi
+done
+
+fan_control --interval 10 \
+			--min-temp 35 \
+			--max-speed 80 \
+			--min-speed 10 \
+			--temp-step 2 \
+			--speed-step 6 \
+			--fan-path $PWM_FAN \
+			--cpu-temp-path $CORE_TEMP
